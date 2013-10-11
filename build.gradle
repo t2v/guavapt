@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.guava:guava:14.0.1'
+    testCompile 'com.google.guava:guava:14.0.1'
     testCompile 'junit:junit:4.+'
     testCompile 'org.projectlombok:lombok:0.12.0'
     testCompile 'org.seasar.aptina:aptina-unit:1.0.0'
