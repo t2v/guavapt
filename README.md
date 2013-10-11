@@ -107,9 +107,9 @@ public class CompanyPredicates {
 }
 ```
 
-## Customize
+## control generation
 
-`@Guavapt` has parametes
+`@Guavapt` annotation can take parametes.
 
 ```java
 @Guavapt(functions = true, predicates = false)
@@ -120,7 +120,7 @@ When functions is true, Guavapt generate functions class.
 When predicates is true, Guavapt generate predicates class.
 
 
-## Customize
+## Customize class name
 
 You can change class name suffix of generated class.
 
@@ -132,3 +132,7 @@ javac -cp guavapt.jar -s -Aguavapt.f.suffix=Foo -Aguavapt.p.suffix=Bar my/cool/l
 ```
 
 Gavapt generate `CompanyFoo` and `CompanyBar` insted of `CompanyFunctions` and `CampanyPredicates`
+
+## License
+
+This library is released under the Apache Software License, version 2, which should be included with the source in a file named LICENSE.
