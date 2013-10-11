@@ -2,6 +2,13 @@
 
 Guavapt is [Guava Functional Idioms](http://code.google.com/p/guava-libraries/wiki/FunctionalExplained) support with APT.
 
+# Motivation
+
+[Funcito](http://code.google.com/p/funcito/) is so cool!
+However Funcito can not support final classes.
+
+Since we want to use [@Value](http://projectlombok.org/features/Value.html) annotation of [Lombok](http://projectlombok.org/), we create guavapt.
+
 ## Usage
 
 Add `@Guavapt` annotation into your bean class.
