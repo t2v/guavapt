@@ -1,0 +1,13 @@
+package jp.t2v.guavapt;
+
+import com.google.common.base.Predicate;
+
+public class TestEntityPredicates {
+    private TestEntityPredicates() {}
+    public static final Predicate<TestEntity> isEditRequired = new Predicate<TestEntity>() {
+        @Override
+        public boolean apply(final TestEntity input) {
+            return input.isEditRequired();
+        }
+    };
+}

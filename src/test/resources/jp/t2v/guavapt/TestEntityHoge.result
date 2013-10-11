@@ -1,0 +1,31 @@
+package jp.t2v.guavapt;
+
+import com.google.common.base.Function;
+
+public class TestEntityHoge {
+    private TestEntityHoge() {}
+    public static final Function<TestEntity, java.lang.Integer> getId = new Function<TestEntity, java.lang.Integer>() {
+        @Override
+        public java.lang.Integer apply(final TestEntity input) {
+            return input.getId();
+        }
+    };
+    public static final Function<TestEntity, java.lang.String> getName = new Function<TestEntity, java.lang.String>() {
+        @Override
+        public java.lang.String apply(final TestEntity input) {
+            return input.getName();
+        }
+    };
+    public static final Function<TestEntity, java.util.List<java.lang.String>> getMessages = new Function<TestEntity, java.util.List<java.lang.String>>() {
+        @Override
+        public java.util.List<java.lang.String> apply(final TestEntity input) {
+            return input.getMessages();
+        }
+    };
+    public static final Function<TestEntity, java.lang.Boolean> isEditRequired = new Function<TestEntity, java.lang.Boolean>() {
+        @Override
+        public java.lang.Boolean apply(final TestEntity input) {
+            return input.isEditRequired();
+        }
+    };
+}
