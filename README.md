@@ -5,7 +5,7 @@ Guavapt is [Guava Functional Idioms](http://code.google.com/p/guava-libraries/wi
 ## Motivation
 
 [Funcito](http://code.google.com/p/funcito/) is so cool!
-However Funcito can not support final classes.
+However Funcito does not support final classes.
 
 Since we want to use [@Value](http://projectlombok.org/features/Value.html) annotation of [Lombok](http://projectlombok.org/), we create guavapt.
 
@@ -38,6 +38,8 @@ public class Company {
     public String getName() { return name; }
     public List<Employee> getEmployees() { return employees; }
     public boolean isListed() { return listed; }
+
+    public boolean hasEmployee() { return !employees.isEmpty(); }
 }
 ```
 
@@ -53,7 +55,7 @@ You can use Functions and Predicates as follows.
 ```
 
 
-### files that Guavapt generates.
+### Generated files.
 
 ```java
 package my.cool.lib;
@@ -86,6 +88,12 @@ public class CompanyFunctions {
             return input.isListed();
         }
     };
+    public static final Function<Company, java.lang.Boolean> hasEmployee = new Function<Company, java.lang.Boolean>() {
+        @Override
+        public java.lang.Boolean apply(final Company input) {
+            return input.hasEmployee();
+        }
+    };
 }
 ```
 
@@ -102,6 +110,12 @@ public class CompanyPredicates {
         @Override
         public boolean apply(final Company input) {
             return input.isListed();
+        }
+    };
+    public static final Predicate<Company> hasEmployee = new Predicate<Company>() {
+        @Override
+        public boolean apply(final Company input) {
+            return input.hasEmployee();
         }
     };
 }
