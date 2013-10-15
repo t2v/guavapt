@@ -2,7 +2,7 @@
 
 Guavapt is [Guava Functional Idioms](http://code.google.com/p/guava-libraries/wiki/FunctionalExplained) support with APT.
 
-# Motivation
+## Motivation
 
 [Funcito](http://code.google.com/p/funcito/) is so cool!
 However Funcito can not support final classes.
@@ -107,7 +107,7 @@ public class CompanyPredicates {
 }
 ```
 
-## control generation
+## Control generation
 
 `@Guavapt` annotation can take parametes.
 
