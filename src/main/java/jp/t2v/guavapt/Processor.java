@@ -1,11 +1,13 @@
 package jp.t2v.guavapt;
 
 import static javax.lang.model.util.ElementFilter.fieldsIn;
+import static javax.lang.model.util.ElementFilter.methodsIn;
 import static javax.lang.model.util.ElementFilter.typesIn;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -15,7 +17,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
@@ -49,7 +51,7 @@ public class Processor extends AbstractProcessor {
             final JavaFileObject file = createSourceFile(element, suffix);
             try (
                 final Writer r = file.openWriter();
-                final PrintWriter writer = new PrintWriter(r);
+                final PrintWriter writer = new PrintWriter(r)
             ) {
                 final String className = fmt("%s%s", element.getSimpleName(), suffix);
                 writer.println(fmt("package %s;", packageName(element)));
@@ -58,10 +60,12 @@ public class Processor extends AbstractProcessor {
                 writer.println();
                 writer.println(fmt("public class %s {", className));
                 writer.println(fmt("    private %s() {}", className));
+                final Set<String> generatedNames = new HashSet<>();
                 for (final VariableElement e : fieldsIn(element.getEnclosedElements())) {
                     if (e.getModifiers().contains(Modifier.STATIC)) continue;
-                    final String fieldType = getWrappedTypeName(e);
+                    final String fieldType = getWrappedTypeName(e.asType());
                     final String getterName = getterName(e, fieldType);
+                    generatedNames.add(getterName);
                     writer.println(fmt("    public static final Function<%s, %s> %s = new Function<%s, %s>() {", element.getSimpleName(), fieldType, getterName, element.getSimpleName(), fieldType));
                     writer.println(fmt("        @Override"));
                     writer.println(fmt("        public %s apply(final %s input) {", fieldType, element.getSimpleName()));
@@ -69,7 +73,21 @@ public class Processor extends AbstractProcessor {
                     writer.println(fmt("        }"));
                     writer.println(fmt("    };"));
                 }
-                ;
+                for (final ExecutableElement e : methodsIn(element.getEnclosedElements())) {
+                    if (e.getModifiers().contains(Modifier.STATIC)) continue;
+                    if (!e.getModifiers().contains(Modifier.PUBLIC)) continue;
+                    if (!e.getParameters().isEmpty()) continue;
+                    final String methodName = e.getSimpleName().toString();
+                    if (generatedNames.contains(e.getSimpleName().toString())) continue;
+                    generatedNames.add(methodName);
+                    final String returnType = getWrappedTypeName(e.getReturnType());
+                    writer.println(fmt("    public static final Function<%s, %s> %s = new Function<%s, %s>() {", element.getSimpleName(), returnType, methodName, element.getSimpleName(), returnType));
+                    writer.println(fmt("        @Override"));
+                    writer.println(fmt("        public %s apply(final %s input) {", returnType, element.getSimpleName()));
+                    writer.println(fmt("            return input.%s();", methodName));
+                    writer.println(fmt("        }"));
+                    writer.println(fmt("    };"));
+                }
                 writer.println("}");
                 writer.flush();
             }
@@ -85,7 +103,7 @@ public class Processor extends AbstractProcessor {
             final JavaFileObject file = createSourceFile(element, suffix);
             try (
                 final Writer r = file.openWriter();
-                final PrintWriter writer = new PrintWriter(r);
+                final PrintWriter writer = new PrintWriter(r)
             ) {
                 final String className = fmt("%s%s", element.getSimpleName(), suffix);
                 writer.println(fmt("package %s;", packageName(element)));
@@ -94,11 +112,13 @@ public class Processor extends AbstractProcessor {
                 writer.println();
                 writer.println(fmt("public class %s {", className));
                 writer.println(fmt("    private %s() {}", className));
+                final Set<String> generatedNames = new HashSet<>();
                 for (final VariableElement e : fieldsIn(element.getEnclosedElements())) {
                     if (e.getModifiers().contains(Modifier.STATIC)) continue;
-                    final String fieldType = getWrappedTypeName(e);
+                    final String fieldType = getWrappedTypeName(e.asType());
                     if (!fieldType.equals(Boolean.class.getCanonicalName())) continue;
                     final String getterName = getterName(e, fieldType);
+                    generatedNames.add(getterName);
                     writer.println(fmt("    public static final Predicate<%s> %s = new Predicate<%s>() {", element.getSimpleName(), getterName, element.getSimpleName()));
                     writer.println(fmt("        @Override"));
                     writer.println(fmt("        public boolean apply(final %s input) {", element.getSimpleName()));
@@ -106,7 +126,22 @@ public class Processor extends AbstractProcessor {
                     writer.println(fmt("        }"));
                     writer.println(fmt("    };"));
                 }
-                ;
+                for (final ExecutableElement e : methodsIn(element.getEnclosedElements())) {
+                    if (e.getModifiers().contains(Modifier.STATIC)) continue;
+                    if (!e.getModifiers().contains(Modifier.PUBLIC)) continue;
+                    if (!e.getParameters().isEmpty()) continue;
+                    final String methodName = e.getSimpleName().toString();
+                    if (generatedNames.contains(e.getSimpleName().toString())) continue;
+                    generatedNames.add(methodName);
+                    final String returnType = getWrappedTypeName(e.getReturnType());
+                    if (!returnType.equals(Boolean.class.getCanonicalName())) continue;
+                    writer.println(fmt("    public static final Predicate<%s> %s = new Predicate<%s>() {", element.getSimpleName(), methodName, element.getSimpleName()));
+                    writer.println(fmt("        @Override"));
+                    writer.println(fmt("        public boolean apply(final %s input) {", element.getSimpleName()));
+                    writer.println(fmt("            return input.%s();", methodName));
+                    writer.println(fmt("        }"));
+                    writer.println(fmt("    };"));
+                }
                 writer.println("}");
                 writer.flush();
             }
@@ -139,9 +174,8 @@ public class Processor extends AbstractProcessor {
         return String.format(format, params);
     }
     
-    private String getWrappedTypeName(final Element e) {
+    private String getWrappedTypeName(final TypeMirror mirror) {
         final Types util = processingEnv.getTypeUtils();
-        final TypeMirror mirror = e.asType();
         return mirror.getKind().isPrimitive() 
             ? util.boxedClass((PrimitiveType) mirror).getQualifiedName().toString()
             : mirror.toString();

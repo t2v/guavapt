@@ -10,4 +10,10 @@ public class TestEntityPredicates {
             return input.isEditRequired();
         }
     };
+    public static final Predicate<TestEntity> hasName = new Predicate<TestEntity>() {
+        @Override
+        public boolean apply(final TestEntity input) {
+            return input.hasName();
+        }
+    };
 }

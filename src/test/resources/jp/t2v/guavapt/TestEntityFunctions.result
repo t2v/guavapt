@@ -28,4 +28,16 @@ public class TestEntityFunctions {
             return input.isEditRequired();
         }
     };
+    public static final Function<TestEntity, java.lang.Boolean> hasName = new Function<TestEntity, java.lang.Boolean>() {
+        @Override
+        public java.lang.Boolean apply(final TestEntity input) {
+            return input.hasName();
+        }
+    };
+    public static final Function<TestEntity, java.lang.String> upperName = new Function<TestEntity, java.lang.String>() {
+        @Override
+        public java.lang.String apply(final TestEntity input) {
+            return input.upperName();
+        }
+    };
 }
